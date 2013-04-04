@@ -1,13 +1,20 @@
 import math
 import os.path
 import pycurl
+import web
 
-from flask import Flask,render_template,request,url_for
+
+## Mapping
+urls = (
+    '/', 'index'
+)
 
 ## Define the application
-app = Flask(__name__)
-app.debug = True 
-app.jinja_env.add_extension('jinja2.ext.loopcontrols')
+app = web.application(urls, globals())
+
+## Make sure we render templates
+render = web.template.render('templates/')
+
 
 ## Load recipes from Amazon S3
 def get_recipes():
@@ -43,15 +50,12 @@ def get_recipes():
 
 
 ## Functionality
-@app.route('/', methods=['GET'])
-def index():
-    ## Make sure static content is available
-    url_for('static', filename='style.css')
-    if request.method == 'GET':
+class index:
+    def GET(self):
         PAGINATE = 20
         recipes = get_recipes()
         number_pages = int(math.ceil(len(recipes) / PAGINATE))
-        return render_template('index.html', recipes=recipes, number_pages=number_pages)
+        return render.index(recipes, number_pages)
 
 
 ## Start it up!
